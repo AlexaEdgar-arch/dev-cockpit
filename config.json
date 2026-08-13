@@ -1,0 +1,19 @@
+{
+  "name": "Dev cockpit",
+  "layout": {
+    "columns": 2,
+    "rows": 1
+  },
+  "projects": [
+    {
+      "name": "Server",
+      "command": "npm run start:dev",
+      "path": "/home/edgar/workbench/blue-stitch-server"
+    },
+    {
+      "name": "FE",
+      "command": "npm run dev",
+      "path": "/home/edgar/workbench/blue-stitch-client"
+    }
+  ]
+}

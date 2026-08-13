@@ -1,8 +1,70 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
 body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
   font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
     sans-serif;
-  margin: auto;
-  max-width: 38rem;
-  padding: 2rem;
+  background: #1a1a1a;
+  color: #f0f0f0;
+}
+
+.grid {
+  display: grid;
+  height: 100%;
+  width: 100%;
+  gap: 2px;
+  background: #333;
+}
+
+.pane {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: #1e1e1e;
+  padding: 1rem;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.pane-name {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.pane-command {
+  font-size: 0.875rem;
+  color: #9a9a9a;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.pane-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pane-actions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.pane-output {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  margin: 0;
+  padding: 0.75rem;
+  background: #111;
+  color: #d4d4d4;
+  font-size: 0.75rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
 }

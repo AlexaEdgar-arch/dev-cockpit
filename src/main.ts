@@ -1,23 +1,130 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
+import fs from 'node:fs';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
+import type { AppConfig } from './types/config-types';
+import { type ChildProcess, spawn } from 'node:child_process';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
 }
 
+const processes = new Map<string, ChildProcess>();
+
+let mainWindow: BrowserWindow | null = null;
+
+const stopProject = (id: string) => {
+  const child = processes.get(id);
+  if (!child?.pid) {
+    return false;
+  }
+
+  try {
+    process.kill(-child.pid, 'SIGTERM');
+  } catch {
+    child.kill('SIGTERM');
+  }
+
+  return true;
+};
+
+const startProject = (id: string, projectPath: string, command: string) => {
+  if (!mainWindow) {
+    throw new Error('Main window is not available');
+  }
+
+  if (processes.has(id)) {
+    stopProject(id);
+  }
+
+  const child = spawn(command, {
+    cwd: projectPath,
+    shell: true,
+    // Own process group so stop can kill npm/nest children too.
+    detached: process.platform !== 'win32',
+    env: process.env,
+  });
+
+  processes.set(id, child);
+
+  child.stdout?.on('data', (data: Buffer) => {
+    mainWindow?.webContents.send('process:stdout', {
+      id,
+      data: data.toString(),
+    });
+  });
+
+  child.stderr?.on('data', (data: Buffer) => {
+    mainWindow?.webContents.send('process:stderr', {
+      id,
+      data: data.toString(),
+    });
+  });
+
+  child.on('close', (code) => {
+    mainWindow?.webContents.send('process:exit', {
+      id,
+      code,
+    });
+
+    processes.delete(id);
+  });
+};
+
+ipcMain.handle(
+  'process:start',
+  (
+    _event,
+    {
+      id,
+      path,
+      command,
+    }: {
+      id: string;
+      path: string;
+      command: string;
+    },
+  ) => {
+    startProject(id, path, command);
+
+    return { success: true };
+  },
+);
+
+ipcMain.handle('process:stop', (_event, { id }: { id: string }) => {
+  return { success: stopProject(id) };
+});
+
+const getConfigPath = () => {
+  if (app.isPackaged) {
+    return path.join(process.resourcesPath, 'config.json');
+  }
+  return path.join(app.getAppPath(), 'config.json');
+};
+
+const loadConfig = (): AppConfig => {
+  const configPath = getConfigPath();
+  const raw = fs.readFileSync(configPath, 'utf-8');
+  return JSON.parse(raw) as AppConfig;
+};
+
+ipcMain.handle('config:get', () => loadConfig());
+
 const createWindow = () => {
-  // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+  const config = loadConfig();
+
+  mainWindow = new BrowserWindow({
+    width: 1000,
+    height: 700,
+    title: config.name,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
     },
   });
 
-  // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
   } else {
@@ -25,19 +132,10 @@ const createWindow = () => {
       path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`),
     );
   }
-
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
 };
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.on('ready', createWindow);
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
@@ -45,12 +143,14 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
+app.on('before-quit', () => {
+  for (const id of [...processes.keys()]) {
+    console.log(id, 'id');
+    stopProject(id);
+  }
+});
