@@ -150,7 +150,6 @@ app.on('activate', () => {
 
 app.on('before-quit', () => {
   for (const id of [...processes.keys()]) {
-    console.log(id, 'id');
     stopProject(id);
   }
 });
