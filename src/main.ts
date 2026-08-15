@@ -1,9 +1,9 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
-import fs from 'node:fs';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
-import type { AppConfig } from './types/config-types';
 import { type ChildProcess, spawn } from 'node:child_process';
+import { loadConfig } from './helper/loadConfig';
+import { getAvailableCommands } from './helper/getAvailableCommands';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -96,20 +96,13 @@ ipcMain.handle('process:stop', (_event, { id }: { id: string }) => {
   return { success: stopProject(id) };
 });
 
-const getConfigPath = () => {
-  if (app.isPackaged) {
-    return path.join(process.resourcesPath, 'config.json');
-  }
-  return path.join(app.getAppPath(), 'config.json');
-};
-
-const loadConfig = (): AppConfig => {
-  const configPath = getConfigPath();
-  const raw = fs.readFileSync(configPath, 'utf-8');
-  return JSON.parse(raw) as AppConfig;
-};
-
 ipcMain.handle('config:get', () => loadConfig());
+
+ipcMain.handle(
+  'config:getProjectCommands',
+  (_event, { projectName }: { projectName: string }) =>
+    getAvailableCommands(projectName),
+);
 
 const createWindow = () => {
   const config = loadConfig();

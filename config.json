@@ -4,16 +4,13 @@
     "columns": 2,
     "rows": 1
   },
+  "workspace": "/home/edgar/workbench/",
   "projects": [
     {
-      "name": "Server",
-      "command": "npm run start:dev",
-      "path": "/home/edgar/workbench/blue-stitch-server"
+      "name": "blue-stitch-server"
     },
     {
-      "name": "FE",
-      "command": "npm run dev",
-      "path": "/home/edgar/workbench/blue-stitch-client"
+      "name": "blue-stitch-client"
     }
   ]
 }

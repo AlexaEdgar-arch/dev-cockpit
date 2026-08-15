@@ -15,6 +15,9 @@ type ProcessOutput = {
 contextBridge.exposeInMainWorld('cockpit', {
   getConfig: (): Promise<AppConfig> => ipcRenderer.invoke('config:get'),
 
+  getConfigProjectCommands: (projectName: string): Promise<any> =>
+    ipcRenderer.invoke('config:getProjectCommands', { projectName }),
+
   startProcess: (process: Process) =>
     ipcRenderer.invoke('process:start', process),
 

@@ -1,11 +1,10 @@
 export type ProjectConfig = {
   name: string;
-  command: string;
-  path?: string;
 };
 
 export type AppConfig = {
   name: string;
+  workspace: string;
   layout: {
     columns: number;
     rows: number;
