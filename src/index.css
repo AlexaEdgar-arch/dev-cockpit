@@ -13,55 +13,29 @@ body,
   color: #f0f0f0;
 }
 
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  padding: 0.5rem 0.75rem;
+  background: #1e1e1e;
+  border-bottom: 1px solid #333;
+}
+
 .grid {
   display: grid;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   width: 100%;
   gap: 2px;
   background: #333;
-}
-
-.pane {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  background: #1e1e1e;
-  padding: 1rem;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.pane-name {
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.pane-command {
-  font-size: 0.875rem;
-  color: #9a9a9a;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-}
-
-.pane-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.pane-actions button:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.pane-output {
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
-  margin: 0;
-  padding: 0.75rem;
-  background: #111;
-  color: #d4d4d4;
-  font-size: 0.75rem;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  white-space: pre-wrap;
-  word-break: break-word;
 }

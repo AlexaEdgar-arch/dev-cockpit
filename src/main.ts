@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { type ChildProcess, spawn } from 'node:child_process';
@@ -102,6 +102,26 @@ ipcMain.handle(
   'config:getProjectCommands',
   (_event, { projectName }: { projectName: string }) =>
     getAvailableCommands(projectName),
+);
+
+ipcMain.handle(
+  'dialog:openDirectory',
+  async (_event, { defaultPath }: { defaultPath?: string } = {}) => {
+    if (!mainWindow) {
+      return null;
+    }
+
+    const result = await dialog.showOpenDialog(mainWindow, {
+      properties: ['openDirectory'],
+      defaultPath,
+    });
+
+    if (result.canceled || result.filePaths.length === 0) {
+      return null;
+    }
+
+    return result.filePaths[0];
+  },
 );
 
 const createWindow = () => {

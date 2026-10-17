@@ -18,6 +18,9 @@ contextBridge.exposeInMainWorld('cockpit', {
   getConfigProjectCommands: (projectName: string): Promise<any> =>
     ipcRenderer.invoke('config:getProjectCommands', { projectName }),
 
+  openDirectory: (defaultPath?: string): Promise<string | null> =>
+    ipcRenderer.invoke('dialog:openDirectory', { defaultPath }),
+
   startProcess: (process: Process) =>
     ipcRenderer.invoke('process:start', process),
 

@@ -12,6 +12,7 @@ type ProcessOutput = {
 interface CockpitApi {
   getConfig: () => Promise<import('./config-types').AppConfig>;
   getConfigProjectCommands: (projectName: string) => Promise<any>;
+  openDirectory: (defaultPath?: string) => Promise<string | null>;
   startProcess: (process: Process) => Promise<unknown>;
   stopProcess: (id: string) => Promise<unknown>;
   onStdout: (callback: (output: ProcessOutput) => void) => () => void;

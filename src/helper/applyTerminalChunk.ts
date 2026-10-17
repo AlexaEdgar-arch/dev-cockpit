@@ -1,4 +1,5 @@
 /** Nest / tsc --watch clear the terminal between rebuilds. */
+// eslint-disable-next-line no-control-regex
 const CLEAR_SCREEN = /(?:\x1b\[[0-9;]*[HJ]|\x1bc|\x1b\[3J)+/g;
 
 export const applyTerminalChunk = (prev: string, chunk: string): string => {
@@ -16,10 +17,7 @@ export const applyTerminalChunk = (prev: string, chunk: string): string => {
     text = chunk.slice(lastClearEnd);
   }
 
-  text = text
-    .replace(/\r\n/g, '\n')
-    // Drop incomplete lines overwritten with \r (progress-style output)
-    .replace(/^[^\n]*\r/gm, '');
+  text = text.replace(/\r\n/g, '\n').replace(/^[^\n]*\r/gm, '');
 
   return text ? next + text : next;
 };
